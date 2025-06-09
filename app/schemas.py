@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from datetime import datetime
+from datetime import date
 
 class User(BaseModel):
     username: str
@@ -17,24 +17,28 @@ class UserResponse(User):
 class TodoBase(BaseModel):
     title: str
     description: str | None = None
-    due_time: datetime
+    due_time: date
 
-class TodCreate(TodoBase):
+class TodoCreate(TodoBase):
     pass
 
 class TodoUpdate(BaseModel):
     title: str | None = None
     description: str | None = None
-    due_time: datetime | None = None
+    due_time: date | None = None
     is_completed: bool | None = None
 
 class OwnerInfo(BaseModel):
     id: int
     username: str
 
+    class Config:
+        orm_mode = True
+
+
 class TodoResponse(TodoBase):
     id: int
     is_completed: bool
-    owner_id: OwnerInfo
+    owner: OwnerInfo
     class Config:
         orm_mode = True

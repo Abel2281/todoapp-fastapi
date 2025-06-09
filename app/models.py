@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, Date, ForeignKey
 from sqlalchemy.orm import relationship
 from database import Base
 from datetime import datetime
@@ -13,14 +13,14 @@ class User(Base):
 
     todos = relationship("Todo", back_populates="owner")
 
-class Todo(Base):
-    __tablename__ = 'todos'
+    class Todo(Base):
+        __tablename__ = 'todos'
 
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, index=True)
-    description = Column(String, index=True)
-    is_completed = Column(Boolean, default=False)
-    due_time = Column(DateTime, nullable=True)
-    user_id = Column(Integer, ForeignKey('users.id'))
+        id = Column(Integer, primary_key=True, index=True)
+        title = Column(String, index=True)
+        description = Column(String, index=True)
+        is_completed = Column(Boolean, default=False)
+        due_time = Column(Date, nullable=True)
+        owner_id = Column(Integer, ForeignKey('users.id'))
 
-    owner = relationship("User", back_populates="todos")
+        owner = relationship("User", back_populates="todos")
