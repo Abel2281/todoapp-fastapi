@@ -15,14 +15,6 @@ def get_all_users(db: Session = Depends(database.get_db)):
         raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail = 'No users found')
     return users
 
-# Create User
-@router.post('/', tags=['User'], status_code=status.HTTP_201_CREATED)
-def create_user(request: schemas.UserCreate, db: Session = Depends(database.get_db)):
-    new_user = models.User(**request.model_dump())
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    return f'New user with username {new_user.username} created successfully'
 
 # Get user by id
 @router.get('/{id}', response_model=schemas.UserResponse, tags=['User'])
