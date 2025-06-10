@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session, joinedload
-from app import database, schemas, models
+import database, schemas, models
 from datetime import datetime
 
 get_db = database.get_db
@@ -87,7 +87,7 @@ def update_todo(id: int, request: TodoUpdate, db: Session = Depends(get_db)):
     return todo
 
 # Delete todo using id
-@router.delete('/todo/{id}', status_code=status.HTTP_204_NO_CONTENT)
+@router.delete('/todo/{id}', status_code=status.HTTP_202_ACCEPTED)
 def delete_todo(id: int, db: Session = Depends(get_db)):
     todo_query = db.query(models.Todo).filter(models.Todo.id == id)
     todo = todo_query.first()
