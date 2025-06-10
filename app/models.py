@@ -6,17 +6,17 @@ from datetime import datetime
 class User(Base):
     __tablename__ = 'users'
 
-    id = Column(Integer, primary_key=True, index=True )
+    id = Column(Integer, primary_key=True, index=True , autoincrement=True)
     username = Column(String, unique=True, index=True, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
     password = Column(String, unique=True, nullable=False)
 
     todos = relationship("Todo", back_populates="owner")
 
-    class Todo(Base):
+class Todo(Base):
         __tablename__ = 'todos'
 
-        id = Column(Integer, primary_key=True, index=True)
+        id = Column(Integer, primary_key=True, index=True, autoincrement=True)
         title = Column(String, index=True)
         description = Column(String, index=True)
         is_completed = Column(Boolean, default=False)
