@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session, joinedload
-import database, schemas, models
+import database, schemas, models, oauth2
 from datetime import datetime
+
 
 get_db = database.get_db
 TodoCreate = schemas.TodoCreate
@@ -14,7 +15,7 @@ router = APIRouter(
 
 # Create a todo
 @router.post('/todo', response_model=TodoCreate, status_code=status.HTTP_201_CREATED)
-def create_todo(request: TodoCreate, db: Session = Depends(get_db)):
+def create_todo(request: TodoCreate, db: Session = Depends(get_db), current_user: schemas.User = Depends(oauth2.get_current_user)):
     new_todo = models.Todo(**request.model_dump(), owner_id=1)      #Need to convert pydantic to sqlalchemy model
     db.add(new_todo)
     db.commit()
@@ -23,7 +24,7 @@ def create_todo(request: TodoCreate, db: Session = Depends(get_db)):
 
 #Get todos grouped by completed
 @router.get('/todo/completed', response_model=list[TodoResponse])
-def get_completed_todos(db: Session = Depends(get_db)):
+def get_completed_todos(db: Session = Depends(get_db), current_user: schemas.User = Depends(oauth2.get_current_user)):
     id = 1
     query = db.query(models.Todo).filter(models.Todo.owner_id == id)
     if not query.first():
@@ -35,7 +36,7 @@ def get_completed_todos(db: Session = Depends(get_db)):
     return todos
 
 @router.get('/todo/incomplete', response_model=list[TodoResponse])
-def get_incomplete_todos(db: Session = Depends(get_db)):
+def get_incomplete_todos(db: Session = Depends(get_db), current_user: schemas.User = Depends(oauth2.get_current_user)):
     id = 1
     todos = db.query(models.Todo).options(joinedload(models.Todo.owner)).filter(
     models.Todo.owner_id == id,
@@ -46,7 +47,7 @@ def get_incomplete_todos(db: Session = Depends(get_db)):
     return todos
 
 @router.get('/todo/time_elapsed', response_model=list[TodoResponse])
-def get_todos_time_elapsed(db: Session = Depends(get_db)):
+def get_todos_time_elapsed(db: Session = Depends(get_db), current_user: schemas.User = Depends(oauth2.get_current_user)):
     id = 1
     query = db.query(models.Todo).filter(models.Todo.owner_id == id)
     if not query.first():
@@ -67,7 +68,7 @@ def get_todos_time_elapsed(db: Session = Depends(get_db)):
 
 # Get todo by id
 @router.get('/todo/{id}', response_model=TodoResponse)
-def get_todo_by_id(id: int, db: Session = Depends(get_db)):
+def get_todo_by_id(id: int, db: Session = Depends(get_db), current_user: schemas.User = Depends(oauth2.get_current_user)):
     todo = db.query(models.Todo).filter(models.Todo.id == id).first()
     if not todo:
         raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail = f'Todo with id {id} not found')
@@ -75,7 +76,7 @@ def get_todo_by_id(id: int, db: Session = Depends(get_db)):
 
 # Update todo using id
 @router.patch('/todo/{id}', response_model=TodoResponse, status_code=status.HTTP_200_OK)
-def update_todo(id: int, request: TodoUpdate, db: Session = Depends(get_db)):
+def update_todo(id: int, request: TodoUpdate, db: Session = Depends(get_db), current_user: schemas.User = Depends(oauth2.get_current_user)):
     data = request.model_dump(exclude_unset=True)
     todo = db.query(models.Todo).filter(models.Todo.id == id).first()
     if not todo:
@@ -88,7 +89,7 @@ def update_todo(id: int, request: TodoUpdate, db: Session = Depends(get_db)):
 
 # Delete todo using id
 @router.delete('/todo/{id}', status_code=status.HTTP_202_ACCEPTED)
-def delete_todo(id: int, db: Session = Depends(get_db)):
+def delete_todo(id: int, db: Session = Depends(get_db), current_user: schemas.User = Depends(oauth2.get_current_user)):
     todo_query = db.query(models.Todo).filter(models.Todo.id == id)
     todo = todo_query.first()
     if not todo:

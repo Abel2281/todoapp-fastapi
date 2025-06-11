@@ -7,7 +7,10 @@ class User(BaseModel):
 
 class UserCreate(User):
     password: str
-
+    
+class UserLogin(BaseModel):
+    email: str
+    password: str
 class UserResponse(User):
     id: int
     class Config:
@@ -42,3 +45,12 @@ class TodoResponse(TodoBase):
     owner: OwnerInfo
     class Config:
         orm_mode = True
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    email: str | None = None
