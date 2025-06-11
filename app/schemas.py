@@ -4,6 +4,7 @@ from datetime import date
 class User(BaseModel):
     username: str
     email: str
+    id: int
 
 class UserCreate(User):
     password: str
@@ -12,7 +13,6 @@ class UserLogin(BaseModel):
     email: str
     password: str
 class UserResponse(User):
-    id: int
     class Config:
         orm_mode = True
     

@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 import schemas
 from jwt.exceptions import InvalidTokenError
 import os
-from dotenv import load_dotenv
+from dotenv import load_dotenv 
 
 load_dotenv()
 
@@ -32,6 +32,6 @@ def verify_token(token: str, credentials_exception):
         email = payload.get("sub")
         if email is None:
             raise credentials_exception
-        token_data = schemas.TokenData(email=email)
+        return schemas.TokenData(email=email)
     except InvalidTokenError:
         raise credentials_exception
