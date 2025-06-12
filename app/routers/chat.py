@@ -54,7 +54,7 @@ async def websocket_endpoint(websocket: WebSocket, db: Session = Depends(databas
     if not token:
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
-    
+
     token_data = JWTtoken.verify_token(token,HTTPException(status_code=401, detail="Invalid token")) 
     user = db.query(models.User).filter(models.User.email == token_data.email).first()
     if user is None:
@@ -63,5 +63,6 @@ async def websocket_endpoint(websocket: WebSocket, db: Session = Depends(databas
     
     username = user.username 
     await websocket.accept()
+
+    active_connections[username] = websocket
     
-   
