@@ -1,6 +1,7 @@
-from fastapi import WebSocket,APIRouter,WebSocketDisconnect
+from fastapi import WebSocket,APIRouter,WebSocketDisconnect,status,HTTPException,Depends
 from fastapi.responses import HTMLResponse
-
+import JWTtoken,database,models
+from sqlalchemy.orm import Session
 router = APIRouter(
     tags=['Chat']
 )
@@ -11,9 +12,6 @@ html = """
 <!DOCTYPE html>
 <html>
   <body>
-    <input id="username" placeholder="Enter your name">
-    <button onclick="connect()">Connect</button><br><br>
-    
     <input id="msg" placeholder="Type a message">
     <button onclick="sendMessage()">Send</button>
 
@@ -24,7 +22,8 @@ html = """
 
       function connect() {
         const username = document.getElementById("username").value;
-        socket = new WebSocket(`ws://localhost:8000/ws/${username}`);
+        socket = new WebSocket(`ws://localhost:8000/ws?token=YOUR_ACCESS_TOKEN`);
+
 
         socket.onmessage = function(event) {
           const messages = document.getElementById("messages");
@@ -49,16 +48,20 @@ html = """
 async def get():
     return HTMLResponse(html)
 
-@router.websocket('/ws/{username}')
-async def websocket_endpoint(websocket: WebSocket, username:str):
+@router.websocket('/ws')
+async def websocket_endpoint(websocket: WebSocket, db: Session = Depends(database.get_db)):
+    token = websocket.query_params.get('token')
+    if not token:
+        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+        return
+    
+    token_data = JWTtoken.verify_token(token,HTTPException(status_code=401, detail="Invalid token")) 
+    user = db.query(models.User).filter(models.User.email == token_data.email).first()
+    if user is None:
+        await websocket.close()
+        return
+    
+    username = user.username 
     await websocket.accept()
-    active_connections[username] = websocket
-    try:
-        while True:
-            data = await websocket.receive_text()
-            for user,connection in active_connections.items():
-                if connection != websocket:
-                    await connection.send_text(f'username is {data}')
-    except WebSocketDisconnect:
-        del active_connections[username]
-
+    
+   
