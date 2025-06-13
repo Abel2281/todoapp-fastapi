@@ -11,18 +11,121 @@ active_connections: dict[str, WebSocket] = {}
 html = """
 <!DOCTYPE html>
 <html>
+  <style>
+    body {
+      background-color: #f3f4f6;
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background: #fff;
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    h2 {
+      margin-bottom: 16px;
+      color: #1f2937;
+    }
+
+    input {
+      width: 90%;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    button {
+      padding: 10px;
+      font-size: 14px;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background-color: #3b82f6;
+      color: white;
+      margin-right: 8px;
+    }
+
+    .btn-secondary {
+      background-color: #6b7280;
+      color: white;
+    }
+
+    .btn-send {
+      background-color: #10b981;
+      color: white;
+      margin-left: 8px;
+    }
+
+    .btn-primary:hover {
+      background-color: #2563eb; 
+    }
+
+    .btn-secondary:hover {
+      background-color: #4b5563; 
+    }
+
+    .btn-send:hover {
+      background-color: #059669; 
+    }
+
+    .chat-input {
+      display: flex;
+      align-items: center;
+    }
+
+    #messages {
+      list-style-type: none;
+      padding-left: 0;
+      max-height: 150px;
+      overflow-y: auto;
+      margin-top: 12px;
+    }
+
+    #messages li {
+      background: #f9fafb;
+      padding: 8px;
+      margin-bottom: 6px;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+  </style>
   <body>
+    <div class="container">
     <h2>Login</h2>
-    <input id="email" placeholder="Enter your email">
-    <input id="password" type="password" placeholder="Enter your password">
-    <button onclick="login()">Login</button>
-    <button onclick="connect()">Connect</button> <!-- <-- This was missing -->
+    <input id="email" placeholder="Enter your email" />
+    <input id="password" type="password" placeholder="Enter your password" />
+    <div style="display: flex; justify-content: space-between; margin-bottom: 24px;">
+      <button class="btn-primary" onclick="login()">Login</button>
+      <button class="btn-secondary" onclick="connect()">Connect</button>
+    </div>
 
     <h2>Chat</h2>
-    <input id="msg" placeholder="Type a message">
-    <button onclick="sendMessage()">Send</button>
+    <div class="chat-input">
+      <input id="msg" placeholder="Type a message" />
+      <button class="btn-send" onclick="sendMessage()">Send</button>
+    </div>
 
     <ul id="messages"></ul>
+  </div>
 
     <script>
       let token = "";
